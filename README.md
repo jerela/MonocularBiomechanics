@@ -27,12 +27,16 @@ These findings support the use of handheld smartphone video as a scalable, low-b
 <video src="docs/static/videos/jd_running.mp4" width="800" controls autoplay muted loop></video>
 
 # Code
+Tested with Ubuntu/WSL 2 and NVIDIA T500 laptop GPU.
+
 Clone and install
 ```
 git clone git@github.com:IntelligentSensingAndRehabilitation/MonocularBiomechanics.git
 cd MonocularBiomechanics/
 pip install -e .
 ```
+Note: For gpu support, modify the pyproject.toml to install `"jax[cuda12]"` and `"tensorflow[with-cuda]"`.
+
 ## Gradio demo
 ```
 python main.py
@@ -60,3 +64,4 @@ This work has been presented at the [2024 American Society of Biomechanics Meeti
 	date = {2025-07-11},
 }
 ```
+
