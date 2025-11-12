@@ -20,6 +20,9 @@ from monocular_demos.biomechanics_mjx.monocular_trajectory import (
 from monocular_demos.utils import load_metrabs, joint_names, video_reader
 from monocular_demos.dataset import MonocularDataset,get_samsung_calibration
 
+# import options.py where some parameters are defined
+import options
+
 fk = ForwardKinematics(
     xml_path="monocular_demos/biomechanics_mjx/data/humanoid/humanoid_torque.xml",
 )
@@ -31,7 +34,7 @@ jax.config.update("jax_enable_x64", True)
 
 
 def save_metrabs_data(accumulated, video_name):
-    fname = video_name.split("/")[-1].split(".")[0]
+    fname = os.path.normpath(video_name.split('.')[0])
     boxes, pose3d, pose2d, confs = [], [], [], []
     for i, (box, p3d, p2d) in enumerate(
         zip(accumulated["boxes"], accumulated["poses3d"], accumulated["poses2d"])
@@ -51,6 +54,7 @@ def save_metrabs_data(accumulated, video_name):
 
         with open(f"{fname}_keypoints.npz", "wb") as f:
             np.savez(f, keypoints3d=pose3d, keypoints2d=pose2d, boxes=boxes, confs=confs)
+            print(f'Saved METRABS data to {fname}_keypoints.npz')
 
 def render_mjx(selected_file, progress=gr.Progress()):
     """Load saved data and create visualizations"""
@@ -64,6 +68,8 @@ def render_mjx(selected_file, progress=gr.Progress()):
     
     result_text = ""
     video_filename = f"{fname}_mjx.mp4"
+    
+    print(f'render_mjx video file name: {fname}')
     
     if os.path.exists(biomech_file):
         with open(biomech_file, "rb") as f:
@@ -99,7 +105,7 @@ def get_framerate(video_path):
 
 
 def load_metrabs_data(video_name):
-    fname = video_name.split("/")[-1].split(".")[0]
+    fname = os.path.normpath(video_name.split('.')[0])
     try:
         with open(f"{fname}_keypoints.npz", "rb") as f:
             data = np.load(f, allow_pickle=True)
@@ -150,7 +156,10 @@ def process_videos_with_metrabs(
                         accumulated[key] = tf.concat(
                             [accumulated[key], pred[key]], axis=0
                         )
-            save_metrabs_data(accumulated, video_path)
+            video_filename = os.path.split(video_path)[1]
+            video_save_path = os.path.join(options.path_keypoints, video_filename)
+            save_metrabs_data(accumulated, video_save_path)
+            print(f'Video data after METRABS processing saved to {video_save_path}')
             video_count += 1
 
     return f"Successfully processed {video_count} videos with Metrabs."
@@ -167,7 +176,7 @@ def process_videos_with_biomechanics(
     jax.clear_caches()
     eqx.clear_caches()
 
-    max_iters = 10000
+    max_iters = options.max_iters_biomechanics
 
     def step_callback(step, model, dataset, metrics_dict, **kwargs):
         if step % 500 == 0:
@@ -182,7 +191,9 @@ def process_videos_with_biomechanics(
     confs_list = []
     for i, video_path in enumerate(video_files):
         if video_path is not None:
-            boxes, keypoints2d, keypoints3d, confs = load_metrabs_data(video_path)
+            video_filename = os.path.split(video_path)[1]
+            video_save_path = os.path.join(options.path_keypoints, video_filename)
+            boxes, keypoints2d, keypoints3d, confs = load_metrabs_data(video_save_path)
             if boxes is None:
                 print(f"Video {video_path}: No Metrabs data found.")
                 continue
@@ -235,7 +246,8 @@ def process_videos_with_biomechanics(
         )
 
         # save zip archive
-        fname = video_path.split("/")[-1].split(".")[0]
+        fname = os.path.join(options.path_biomechanics, (os.path.split(video_path)[1]).split(".")[0])
+        print(f'fname for saving ZIP: {fname}')
         with open(f"{fname}_fitted_model.npz", "wb") as f:
             np.savez(
                 f,
@@ -247,13 +259,14 @@ def process_videos_with_biomechanics(
                 joints=np.array(state.xpos),
                 scale=np.array(model.body_scale)
             )
+            print(f'Fitted biomechanical model saved with filename: {fname}_fitted_model.npz')
 
     return f"Successfully processed {len(dataset)} videos with biomechanics fitting."
 
 
 def get_available_fitted_models():
     """Get list of available fitted model files"""
-    fitted_files = [f for f in os.listdir('.') if f.endswith('_fitted_model.npz')]
+    fitted_files = [f for f in os.listdir(os.path.normpath(options.path_biomechanics)) if f.endswith('_fitted_model.npz')]
     return fitted_files if fitted_files else ["No fitted models found"]
 
 def load_and_visualize_data(selected_file, selected_joints=None):
@@ -268,6 +281,8 @@ def load_and_visualize_data(selected_file, selected_joints=None):
     # Try to load keypoints data
     keypoints_file = f"{fname}_keypoints.npz"
     biomech_file = selected_file
+    keypoints_file = os.path.normpath(os.path.join(options.path_keypoints,keypoints_file))
+    biomech_file = os.path.normpath(os.path.join(options.path_biomechanics,biomech_file))
     
     result_text = ""
     plot1 = None
