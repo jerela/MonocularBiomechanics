@@ -24,6 +24,7 @@ def render_trajectory(
     blank_background: None | int = None,
     shadow=True,
     hide_tendon=False,
+    video_codec="mp4v"
 ):
     """
     Renders a trajectory of poses using mujoco.
@@ -145,7 +146,7 @@ def render_trajectory(
         import numpy as np
 
         cap = cv2.VideoWriter(
-            filename, cv2.VideoWriter_fourcc(*"mp4v"), fps, (width, height)
+            filename, cv2.VideoWriter_fourcc(*video_codec), fps, (width, height)
         )
 
         for i in trange(len(images)):

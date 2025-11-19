@@ -5,6 +5,13 @@ Changeable variables for main.py, easily controllable from this file instead of 
 import os
 import numpy as np
 
+# default 800 on both
+video_height = 800
+video_width = 800
+
+# default "mp4v", but doesn't seem to work on Gradio Video with Windows 11 and Firefox
+video_codec = "avc1"
+
 # maximum iterations of the biomechanics processing stage, 10000 in the original
 max_iters_biomechanics = 500
 # path to the root folder where the main Python file is
@@ -15,11 +22,13 @@ path_data = os.path.join(path_root,'data')
 path_keypoints = os.path.join(path_data,'keypoints')
 # path where the output of biomechanical fitting is stored
 path_biomechanics = os.path.join(path_data,'biomechanics')
+# path where the video output is stored
+path_output_video = os.path.join(path_data,'video')
 # WIP; path to the calibration file for the camera
 path_calibration = None
 
 
-def get_biocv_calibration(file_names) -> Dict:
+def get_biocv_calibration(file_names):
 
     ret, C, S, D, K, R, T = calib_biocv_fun(file_names)
 

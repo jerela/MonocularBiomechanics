@@ -69,25 +69,28 @@ def render_mjx(selected_file, progress=gr.Progress()):
     result_text = ""
     video_filename = f"{fname}_mjx.mp4"
     
-    print(f'render_mjx video file name: {fname}')
+    # include paths so the files are correctly found on Windows
+    biomech_file_with_path = os.path.normpath(os.path.join(options.path_biomechanics,biomech_file))
+    video_with_path = os.path.normpath(os.path.join(options.path_output_video,video_filename))
     
-    if os.path.exists(biomech_file):
-        with open(biomech_file, "rb") as f:
+    if os.path.exists(biomech_file_with_path):
+        with open(biomech_file_with_path, "rb") as f:
             data = np.load(f, allow_pickle=True)
-            result_text += f"Loaded biomechanics data: {biomech_file}\n"
+            result_text += f"Loaded biomechanics data: {biomech_file_with_path}\n"
             qpos = data['qpos']
     progress(0, desc="Rendering Video (progress will not display linearly)...")
     render_trajectory(
         qpos,
-        filename = video_filename,
+        filename = video_with_path,
         xml_path="monocular_demos/biomechanics_mjx/data/humanoid/humanoid_torque_vis.xml",
-        height=800,
-        width=800,
+        height=options.video_height,
+        width=options.video_width,
+        video_codec=options.video_codec,
     )
     progress(1.0, desc="Visualization complete!")
-    result_text += f"Rendered visualization: {video_filename}\n"
+    result_text += f"Rendered visualization: {video_with_path}\n"
 
-    return result_text, video_filename
+    return result_text, video_with_path
 
 
 
