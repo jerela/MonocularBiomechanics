@@ -83,6 +83,13 @@ def load_metrabs():
     load_metrabs.model = hub.load('https://bit.ly/metrabs_l')  # Takes about 3 minutes
     return load_metrabs.model
 
+# load MeTRAbs model from a specified path, such as a local filepath
+def load_metrabs_from_path(path):
+    if load_metrabs.model is not None:
+        return load_metrabs.model
+    load_metrabs.model = hub.load(path)
+    return load_metrabs.model
+
 load_metrabs.model = None
 
 joint_names = [

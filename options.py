@@ -12,12 +12,19 @@ video_width = 800
 # default "mp4v", but doesn't seem to work on Gradio Video with Windows 11 and Firefox
 video_codec = "avc1"
 
+# how many frames to skip when detecting keypoints with MeTRAbs; keep at 1 if you want all frames to be analyzed
+frame_step = 10
+
 # maximum iterations of the biomechanics processing stage, 10000 in the original
 max_iters_biomechanics = 500
 # path to the root folder where the main Python file is
 path_root = 'C:/Users/jerela/Documents/GitHub/MonocularBiomechanics'
 # path to the folder where intermediary and output data is stored
 path_data = os.path.join(path_root,'data')
+# path where the metrabs model is
+path_metrabs_model = os.path.join(path_data,'models')
+# path where the input videos are
+path_input_video = os.path.join(path_data,'input')
 # path where the output of keypoint detection with METRABS is stored
 path_keypoints = os.path.join(path_data,'keypoints')
 # path where the output of biomechanical fitting is stored
