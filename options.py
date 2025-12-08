@@ -47,9 +47,9 @@ def get_biocv_calibration(file_names):
     mtx = (mtx[[0, 1, 0, 1], [0, 1, 2, 2]] / 1000).reshape(1, -1)
     #dist = np.zeros(5).reshape(1, -1)
     dist = np.array(D[0]).reshape(1,-1)
-    # rotation and translation are not necessary when we are using a single camera instead of triangulating keypoints from several cameras
-    rvec = np.zeros(3).reshape(1, -1)
-    tvec = np.zeros(3).reshape(1, -1)
+    # rotation and translation are not necessary when we are using a single camera instead of triangulating keypoints from several cameras, but using them helps put the visualization the right way (e.g., skeleton is not upside down)
+    rvec = R[0].reshape(1, -1)
+    tvec = T[0].reshape(1, -1)
     return dict(mtx=mtx, dist=dist, tvec=tvec, rvec=rvec)
 
 # adapted from Pose2Sim: https://github.com/perfanalytics/pose2sim/blob/main/Pose2Sim/calibration.py#L387C1-L420C33
