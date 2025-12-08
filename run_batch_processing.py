@@ -166,7 +166,7 @@ def process_videos_with_metrabs(video_files: List[str]) -> str:
     return f"Successfully processed {video_count} videos with Metrabs."
 
 
-def process_videos_with_biomechanics(video_files: List[str]) -> str:
+def process_videos_with_biomechanics(video_files: List[str], camera_calibration_path) -> str:
     """
     Process the uploaded videos with biomechanics fitting. Replace this with your actual processing logic.
     """
@@ -206,7 +206,7 @@ def process_videos_with_biomechanics(video_files: List[str]) -> str:
         keypoints_2d=keypoints2d_list,
         keypoints_3d=keypoints3d_list,
         keypoint_confidence=confs_list,
-        camera_params=get_samsung_calibration(),
+        camera_params=options.get_biocv_calibration(camera_calibration_path),
         phone_attitude=None,
     )
 
@@ -358,13 +358,29 @@ def main():
     input_files = [f for f in os.listdir(os.path.normpath(options.path_input_video)) if f.endswith('.mp4')]
     print(f'Found input files: {input_files}')
     
+    # create list of unique participants for selecting files to be analyzed in biomechanical fitting
+    participant_ids = list(dict.fromkeys([x.split('_')[0] for x in input_files]))
+    print(f'unique participants: {participant_ids}')
+    
+    # keypoint detection can be done for all trials in one batch
     print(f'Beginning MeTRAbs processing of {len(input_files)} video(s).')
-    process_videos_with_metrabs(input_files)
+    #process_videos_with_metrabs(input_files)
+    
+    # biomechanical fitting will be done for trials belonging to one subject at a time because camera calibration may vary between subjects
     print(f'MeTRAbs processing finished. Beginning biomechanical fitting.')
-    process_videos_with_biomechanics(input_files)
+    for participant in participant_ids:
+        # construct the path to the camera calibration file
+        path_calib = os.path.normpath(os.path.join(options.path_calibration, f'{participant}_00.mp4-mocAligned2.calib'))
+        # find files belonging to that participants
+        current_participant_files = [x for x in input_files if x.startswith(participant)]
+        print(f'Files for participant {participant}: {current_participant_files}')
+        process_videos_with_biomechanics(current_participant_files, camera_calibration_path=path_calib)
+    
+    # finally, render the videos
     print(f'Biomechanical fitting finished. Beginning output video rendering.')
     for f in input_files:
         render_mjx(f)
+        pass
     print('All done!')
 
 if __name__ == '__main__':

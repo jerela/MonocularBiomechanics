@@ -4,6 +4,7 @@ Changeable variables for main.py, easily controllable from this file instead of 
 
 import os
 import numpy as np
+import cv2
 
 # default 800 on both
 video_height = 800
@@ -13,10 +14,10 @@ video_width = 800
 video_codec = "avc1"
 
 # how many frames to skip when detecting keypoints with MeTRAbs; keep at 1 if you want all frames to be analyzed
-frame_step = 10
+frame_step = 1
 
 # maximum iterations of the biomechanics processing stage, 10000 in the original
-max_iters_biomechanics = 500
+max_iters_biomechanics = 3000#1000
 # path to the root folder where the main Python file is
 path_root = 'C:/Users/jerela/Documents/GitHub/MonocularBiomechanics'
 # path to the folder where intermediary and output data is stored
@@ -31,8 +32,8 @@ path_keypoints = os.path.join(path_data,'keypoints')
 path_biomechanics = os.path.join(path_data,'biomechanics')
 # path where the video output is stored
 path_output_video = os.path.join(path_data,'video')
-# WIP; path to the calibration file for the camera
-path_calibration = None
+# path to the calibration file for the camera
+path_calibration = os.path.join(path_data,'camera_calibration')
 
 
 def get_biocv_calibration(file_names):
@@ -68,9 +69,9 @@ def calib_biocv_fun(calibration_file_paths):
     - R: extrinsic rotation: list of arrays of floats
     - T: extrinsic translation: list of arrays of floats
     '''
-
+    
     ret, C, S, D, K, R, T = [], [], [], [], [], [], []
-    for i, f_path in enumerate(files_to_convert_paths):
+    for i, f_path in enumerate([calibration_file_paths]):
         with open(f_path) as f:
             calib_data = f.read().split('\n')
             ret += [np.nan]
