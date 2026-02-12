@@ -25,7 +25,9 @@ from monocular_demos.dataset import MonocularDataset,get_samsung_calibration
 import options
 
 fk = ForwardKinematics(
-    xml_path="monocular_demos/biomechanics_mjx/data/humanoid/humanoid_torque.xml",
+    xml_path=options.model_msk,
+    #xml_path="monocular_demos/biomechanics_mjx/data/humanoid/humanoid_torque.xml",
+    #xml_path="monocular_demos/biomechanics_mjx/data/humanoid/Rajagopal2015.xml",
 )
 
 jax.config.update("jax_compilation_cache_dir", "./.jax_cache")
@@ -81,7 +83,7 @@ def render_mjx(selected_file):
     render_trajectory(
         qpos,
         filename = video_with_path,
-        xml_path="monocular_demos/biomechanics_mjx/data/humanoid/humanoid_torque_vis.xml",
+        xml_path=options.model_vis,#"monocular_demos/biomechanics_mjx/data/humanoid/humanoid_torque_vis.xml",
         height=options.video_height,
         width=options.video_width,
         video_codec=options.video_codec,
@@ -211,7 +213,8 @@ def process_videos_with_biomechanics(video_files: List[str], camera_calibration_
     )
 
     model = get_model(
-        dataset, xml_path="monocular_demos/biomechanics_mjx/data/humanoid/humanoid_torque.xml", joint_names=joint_names
+        #dataset, xml_path="monocular_demos/biomechanics_mjx/data/humanoid/humanoid_torque.xml", joint_names=joint_names
+        dataset, xml_path=options.model_msk, joint_names=joint_names
     )  # might need to change the site names
     model, metrics = fit_model(
         model,

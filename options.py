@@ -17,7 +17,7 @@ video_codec = "avc1"
 frame_step = 1
 
 # maximum iterations of the biomechanics processing stage, 10000 in the original
-max_iters_biomechanics = 3000#1000
+max_iters_biomechanics = 6000#1000
 # path to the root folder where the main Python file is
 path_root = 'C:/Users/jerela/Documents/GitHub/MonocularBiomechanics'
 # path to the folder where intermediary and output data is stored
@@ -34,6 +34,12 @@ path_biomechanics = os.path.join(path_data,'biomechanics')
 path_output_video = os.path.join(path_data,'video')
 # path to the calibration file for the camera
 path_calibration = os.path.join(path_data,'camera_calibration')
+
+model_msk = 'monocular_demos/biomechanics_mjx/data/humanoid/Rajagopal2015.xml'
+#model_msk = 'monocular_demos/biomechanics_mjx/data/humanoid/humanoid_torque.xml'
+model_vis = model_msk
+#model_vis = 'monocular_demos/biomechanics_mjx/data/humanoid/humanoid_torque_vis.xml'
+
 
 
 def get_biocv_calibration(file_names):
